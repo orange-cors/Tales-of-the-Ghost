@@ -1,0 +1,39 @@
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Mm]emoryCaptures/
+
+# Asset meta data should be tracked
+!/[Aa]ssets/**/*.meta
+
+# Auto-generated VS/JetBrains files
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Rider
+.idea/
+*.iml
+
+# Crash reports
+sysinfo.txt
+
+# Unity cache
+*.stacktrace
+
+# Addressables
+[Aa]ssets/AddressableAssetsData/*/*.bin
