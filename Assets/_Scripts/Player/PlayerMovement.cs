@@ -1,3 +1,5 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -17,22 +19,23 @@ public class PlayerMovement : MonoBehaviour
         // Nhận diện phím A/D hoặc Mũi tên
         float horizontalInput = Input.GetAxis("Horizontal");
 
-        // Di chuyển
+        //Di chuyển
         rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
 
         // --- Xử lý xoay mặt (Flip) ---
-        if (horizontalInput > 0.01f) // Đang chạy phải (D)
+        if (horizontalInput > 0) // Đang chạy phải (D)
         {
             transform.localScale = new Vector3(1, 1, 1);
         }
-        else if (horizontalInput < -0.01f) // Đang chạy trái (A)
+        else if (horizontalInput < 0) // Đang chạy trái (A)
         {
             transform.localScale = new Vector3(-1, 1, 1); // Lật ngược lại
         }
-        
+
         // --- Gửi tín hiệu cho Animation (Nếu có) ---
         if (anim != null)
         {
+            //horizontalInput != 0
              anim.SetBool("isRunning", horizontalInput != 0);
         }
     }
