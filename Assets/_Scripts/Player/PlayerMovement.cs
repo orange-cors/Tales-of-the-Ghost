@@ -1,42 +1,63 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f; // Tốc độ chạy
+    public float speed = 5f;
+    public float jumpForce = 8f;
+    public LayerMask groundLayer;
+    public Transform groundCheck;
+    public float checkRadius = 0.08f;
+
     private Rigidbody2D rb;
     private Animator anim;
+    private SpriteRenderer[] allSprites;
+    private bool isGrounded;
+    private bool facingRight = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>(); // Nếu chưa có Anim thì bỏ dòng này tạm
+        anim = GetComponent<Animator>();
+        allSprites = GetComponentsInChildren<SpriteRenderer>();
     }
 
     void Update()
     {
-        // Nhận diện phím A/D hoặc Mũi tên
-        float horizontalInput = Input.GetAxis("Horizontal");
+        // Check ground
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
 
-        //Di chuyển
+        // Input
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+
+        // Move
         rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
 
-        // --- Xử lý xoay mặt (Flip) ---
-        if (horizontalInput > 0) // Đang chạy phải (D)
+        // Jump
+        if (isGrounded && Input.GetButtonDown("Jump"))
         {
-            transform.localScale = new Vector3(1, 1, 1);
-        }
-        else if (horizontalInput < 0) // Đang chạy trái (A)
-        {
-            transform.localScale = new Vector3(-1, 1, 1); // Lật ngược lại
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce); 
         }
 
-        // --- Gửi tín hiệu cho Animation (Nếu có) ---
-        if (anim != null)
+        // Flip
+        if (horizontalInput > 0.01f && !facingRight)
         {
-            //horizontalInput != 0
-             anim.SetBool("isRunning", horizontalInput != 0);
+            FlipAllSprites(false);
+            facingRight = true;
         }
+        else if (horizontalInput < -0.01f && facingRight)
+        {
+            FlipAllSprites(true);
+            facingRight = false;
+        }
+
+        // Animation
+        anim.SetBool("isRunning", horizontalInput != 0);
+        anim.SetBool("isJumping", !isGrounded);
+    }
+
+    void FlipAllSprites(bool flipX)
+    {
+        foreach (var s in allSprites)
+            s.flipX = flipX;
     }
 }
