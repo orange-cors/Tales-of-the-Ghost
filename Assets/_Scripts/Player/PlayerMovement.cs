@@ -1,63 +1,86 @@
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    public float speed = 5f;
-    public float jumpForce = 8f;
-    public LayerMask groundLayer;
-    public Transform groundCheck;
-    public float checkRadius = 0.08f;
+    [Header("Cài đặt")]
+    public float moveSpeed = 5f;
+    public float jumpForce = 10f;
+    public Transform visualContainer; // Kéo object "Visual" vào đây
+
+    [Header("Kiểm tra đất")]
+    public Transform groundCheck;     // Kéo object GroundCheck ở chân vào đây
+    public float groundCheckRadius = 0.2f;
+    public LayerMask groundLayer;     // Chọn layer Ground
 
     private Rigidbody2D rb;
     private Animator anim;
-    private SpriteRenderer[] allSprites;
+    private float moveInput;
     private bool isGrounded;
-    private bool facingRight = true;
+    private bool isFacingRight = true;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
-        allSprites = GetComponentsInChildren<SpriteRenderer>();
+        // Anim nằm ở object con (Visual) hoặc chính nó, tùy cách bạn sắp xếp
+        anim = GetComponentInChildren<Animator>(); 
     }
 
     void Update()
     {
-        // Check ground
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, checkRadius, groundLayer);
+        // 1. Nhận Input
+        moveInput = Input.GetAxisRaw("Horizontal");
 
-        // Input
-        float horizontalInput = Input.GetAxisRaw("Horizontal");
-
-        // Move
-        rb.linearVelocity = new Vector2(horizontalInput * speed, rb.linearVelocity.y);
-
-        // Jump
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        // 2. Nhảy
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce); 
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
-        // Flip
-        if (horizontalInput > 0.01f && !facingRight)
-        {
-            FlipAllSprites(false);
-            facingRight = true;
-        }
-        else if (horizontalInput < -0.01f && facingRight)
-        {
-            FlipAllSprites(true);
-            facingRight = false;
-        }
+        // 3. Xử lý Animation
+        UpdateAnimation();
 
-        // Animation
-        anim.SetBool("isRunning", horizontalInput != 0);
-        anim.SetBool("isJumping", !isGrounded);
+        // 4. Xử lý Lật hình (Flip)
+        if (moveInput > 0 && !isFacingRight) Flip();
+        else if (moveInput < 0 && isFacingRight) Flip();
     }
 
-    void FlipAllSprites(bool flipX)
+    void FixedUpdate()
     {
-        foreach (var s in allSprites)
-            s.flipX = flipX;
+        // 5. Di chuyển vật lý
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+    }
+
+    void UpdateAnimation()
+    {
+        if (anim != null)
+        {
+            // Chuyển trạng thái chạy/đứng
+            // Mathf.Abs(moveInput) > 0 nghĩa là có bấm nút di chuyển
+            anim.SetBool("isRunning", Mathf.Abs(moveInput) > 0);
+            
+            // Chuyển trạng thái nhảy/rơi
+            anim.SetBool("isGrounded", isGrounded);
+            anim.SetFloat("yVelocity", rb.linearVelocity.y);
+        }
+    }
+
+    void Flip()
+    {
+        isFacingRight = !isFacingRight;
+        // Chỉ lật phần hình ảnh (Visual), không lật cả cục Player
+        Vector3 scale = visualContainer.localScale;
+        scale.x *= -1;
+        visualContainer.localScale = scale;
+    }
+
+    // Vẽ vòng tròn check đất để dễ nhìn trong Editor
+    private void OnDrawGizmos()
+    {
+        if (groundCheck != null)
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
     }
 }
