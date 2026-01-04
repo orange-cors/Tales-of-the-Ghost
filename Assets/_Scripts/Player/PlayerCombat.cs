@@ -35,12 +35,10 @@ public class PlayerCombat : MonoBehaviour
         // 3. Trừ máu từng thằng bị chém trúng
         foreach(Collider2D enemy in hitEnemies)
         {
-            // Tìm script EnemyHealth trên đối tượng vừa chém trúng
-            EnemyHealth health = enemy.GetComponent<EnemyHealth>();
-            
-            if (health != null)
-            {
-                health.TakeDamage(attackDamage); // attackDamage lấy từ Inspector
+            // Thay vì tìm EnemyHealth, ta tìm HealthSystem
+            HealthSystem health = enemy.GetComponent<HealthSystem>();
+            if(health != null) {
+                health.TakeDamage(attackDamage);
             }
         }
     }
