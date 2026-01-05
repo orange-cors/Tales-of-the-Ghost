@@ -36,7 +36,7 @@ public class PlayerCombat : MonoBehaviour
         foreach(Collider2D enemy in hitEnemies)
         {
             // Thay vì tìm EnemyHealth, ta tìm HealthSystem
-            HealthSystem health = enemy.GetComponent<HealthSystem>();
+            HealthSystem health = enemy.GetComponentInParent<HealthSystem>();
             if(health != null) {
                 health.TakeDamage(attackDamage);
             }
