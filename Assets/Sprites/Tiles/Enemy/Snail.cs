@@ -2,45 +2,32 @@ using UnityEngine;
 
 public class Snail : HealthSystem
 {
-    public float maxHealth = 50;
-    public float currentHealth;
-    
-    public HealthBar healthBar;
     public Rigidbody2D rb;
-    public Animator animator; // Sếp nhớ kéo Animator vào ô này trong Inspector
 
-    void Start()
+    public override void Start()
     {
-        currentHealth = maxHealth;
-        // Tự động tìm Animator nếu sếp quên không kéo vào
-        if (animator == null) animator = GetComponent<Animator>();
-    }
+        base.Start();
 
-    void Update()
-    {
-        
+        if (rb == null)
+            rb = GetComponent<Rigidbody2D>();
     }
 
     public override void TakeDamage(float damage)
     {
-        if (currentHealth <= 0) return; // Nếu chết rồi thì thôi không nhận đam nữa
+        base.TakeDamage(damage);
 
-        currentHealth -= damage;
-
-        // Kích hoạt animation bị đau
-        if (animator != null)
+        if (currentHealth <= 0 && healthBar != null)
         {
-            animator.SetTrigger("Hurt"); 
-        }
-
-        if (currentHealth <= 0)
-        {
-            Die();
+            healthBar.gameObject.SetActive(false);
         }
     }
 
     public override void Die()
     {
-        Destroy(gameObject);
+        // Gọi logic chết CHUNG
+        base.Die();
+
+        Debug.Log("Snail đã tan xương nát thịt!");
+        // ❌ KHÔNG Destroy lại ở đây
     }
 }
