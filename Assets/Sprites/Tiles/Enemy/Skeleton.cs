@@ -28,6 +28,6 @@ public class Skeleton : HealthSystem
         base.Die();
 
         Debug.Log("Skeleton đã tan xương nát thịt!");
-        // ❌ KHÔNG Destroy lại ở đây
+        // KHÔNG Destroy lại ở đây
     }
 }
